@@ -1,21 +1,21 @@
 # CAD Earth Dashboard
 
-A production-ready Next.js foundation for the CAD Earth amateur League of Legends coaching dashboard. The current app preserves the original prototype's CAD / CTRL ALT DEL visual identity, mock roster, match review cards, composition library, weekly goals, and browser-local coach notes while moving the codebase to a typed, componentized architecture.
+A production-ready Next.js foundation for the CAD Earth amateur League of Legends coaching dashboard. The public dashboard still uses the mock roster, team statistics, match reviews, and starter player goals/compositions while Milestone 2 adds Supabase-backed authentication and storage for coach/admin editing.
 
 ## Current scope
 
-- Next.js App Router application
-- TypeScript with strict mode enabled
-- Reusable React components for the dashboard shell, cards, navigation, and notes
-- Typed models for players, matches, compositions, goals, team metrics, and coach notes
-- Dedicated mock data module
-- Coach notes persisted through a storage abstraction backed by browser `localStorage`
-- Responsive CSS carried forward from the prototype
-- Vercel-compatible project structure
+- Next.js App Router application with TypeScript strict mode
+- Publicly readable dashboard pages
+- Mock team statistics and player roster preserved for the current milestone
+- Supabase Auth login/logout for coach/admin users
+- Supabase-backed coach notes replacing browser `localStorage`
+- Admin-only create, update, and delete flows for coach notes, weekly goals, and saved compositions
+- PostgreSQL migrations for `profiles`, `coach_notes`, `player_goals`, and `compositions`
+- Row Level Security enabled on every application table with public `SELECT` and admin-only write policies
 
 ## Not included yet
 
-Riot API integration, Supabase authentication, persistent database storage, scheduled match synchronization, and secure coach-note editing are intentionally not connected yet. Use `.env.example` as the placeholder contract for future credentials and never commit real secrets.
+Riot API integration, match ingestion, scheduled synchronization, and Data Dragon assets are intentionally not connected yet. Never commit real secrets.
 
 ## Local setup
 
@@ -26,23 +26,66 @@ Riot API integration, Supabase authentication, persistent database storage, sche
 npm install
 ```
 
-3. Copy the environment template and fill values only when integrations are implemented:
+3. Copy the environment template:
 
 ```bash
 cp .env.example .env.local
 ```
 
-4. Start the development server:
+4. Fill in the Supabase values from your Supabase project settings:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-or-anon-key
+```
+
+Only public Supabase client variables are used by the app. Do not add a Supabase service-role key to browser code or commit one to the repository.
+
+5. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open the app:
+6. Open the public app at `http://localhost:3000` or the admin login at `http://localhost:3000/login`.
 
-```text
-http://localhost:3000
+## Supabase setup
+
+1. Create a Supabase project.
+2. In Supabase Auth settings, configure your local and production Site URL / Redirect URLs.
+3. Apply the migrations in `supabase/migrations` with the Supabase CLI:
+
+```bash
+supabase link --project-ref YOUR_PROJECT_REF
+supabase db push
 ```
+
+Alternatively, run the SQL files in timestamp order in the Supabase SQL editor.
+
+The migrations create:
+
+- `profiles` for user metadata and the `is_admin` flag
+- `coach_notes` for public coach-note display
+- `player_goals` for editable weekly goals
+- `compositions` for saved draft compositions
+
+Every table has RLS enabled. Public dashboard reads are allowed through `SELECT` policies, while `INSERT`, `UPDATE`, and `DELETE` policies require an authenticated user whose profile has `is_admin = true`.
+
+## Create the first admin user
+
+1. The project owner signs up or creates the first coach user in Supabase Auth.
+2. The `profiles` migration automatically creates a profile row for new Auth users.
+3. The project owner manually opens the Supabase SQL Editor and promotes that first user to admin with the bootstrap SQL below, replacing `OWNER_EMAIL` with the owner's actual email address:
+
+```sql
+update public.profiles
+set is_admin = true
+where email = 'OWNER_EMAIL';
+```
+
+This bootstrap SQL is a one-time manual owner action in Supabase. It is not exposed through the application, and there is no public app flow for granting admin rights.
+
+4. Sign in at `/login` with that user. Admin users can manage notes, weekly goals, and compositions at `/admin`.
 
 ## Available scripts
 
@@ -73,18 +116,11 @@ Runs the TypeScript compiler in no-emit mode.
 ## Project structure
 
 ```text
-app/                  Next.js App Router entry points and global styles
+app/                  Next.js App Router routes, auth/admin pages, global styles
 components/           Reusable React UI components
-data/                 Mock dashboard data
-types/                Shared TypeScript domain models
-lib/                  Client-side storage abstractions
-.env.example          Future Riot and Supabase environment placeholders
+data/                 Mock dashboard data retained for current public views
+lib/supabase/         Browser and server Supabase clients using @supabase/ssr
+supabase/migrations/  PostgreSQL schema and RLS policy migrations
+types/                Shared TypeScript domain and Supabase database types
+.env.example          Public environment variable template
 ```
-
-## Future production milestones
-
-1. Add Supabase auth and database persistence.
-2. Add Riot account lookup, match ingestion, and scheduled sync.
-3. Add Data Dragon champion and item assets.
-4. Build real coaching analytics from normalized match data.
-5. Add monitoring, deployment checks, and role-based admin editing.
