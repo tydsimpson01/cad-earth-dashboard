@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAD Earth | Team Operations</title>
+  <meta name="description" content="CAD Earth amateur League of Legends team coaching dashboard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-mark" aria-label="CAD Earth logo">
+          <span>C</span><span>A</span><span>D</span>
+        </div>
+        <div>
+          <strong>CAD</strong>
+          <small>EARTH // TEAM OPS</small>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary navigation">
+        <button class="nav-link active" data-view="overview">Overview</button>
+        <button class="nav-link" data-view="players">Players</button>
+        <button class="nav-link" data-view="matches">Matches</button>
+        <button class="nav-link" data-view="compositions">Compositions</button>
+        <button class="nav-link" data-view="goals">Goals</button>
+        <button class="nav-link" data-view="notes">Coach Notes</button>
+      </nav>
+
+      <div class="scrim-card">
+        <span class="eyebrow">NEXT EVENT</span>
+        <h3>Amateur Tournament</h3>
+        <p>Schedule pending</p>
+        <div class="status-row"><span class="status-dot"></span> Preparation mode</div>
+      </div>
+
+      <div class="riot-note">
+        CAD Earth is not endorsed by Riot Games and does not reflect the views or opinions of Riot Games or anyone officially involved in League of Legends.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <span class="eyebrow">CTRL // ALT // DEL</span>
+          <h1 id="page-title">Team Overview</h1>
+        </div>
+        <div class="top-actions">
+          <select id="range-select" aria-label="Match range">
+            <option>Last 20 Games</option>
+            <option>Last 10 Games</option>
+            <option>Current Tournament</option>
+          </select>
+          <div class="mode-pill">PUBLIC VIEW</div>
+        </div>
+      </header>
+
+      <section id="overview" class="view active">
+        <div class="notice">
+          <strong>Prototype data:</strong> statistics shown below are placeholders until the Riot API and database are connected.
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric-card">
+            <span>Win Rate</span><strong>60%</strong><small class="positive">12W – 8L</small>
+            <div class="sparkline"><i style="width:72%"></i></div>
+          </article>
+          <article class="metric-card">
+            <span>Avg. Game</span><strong>28:34</strong><small class="positive">-1:12 vs prior 20</small>
+            <div class="sparkline"><i style="width:58%"></i></div>
+          </article>
+          <article class="metric-card">
+            <span>First Blood</span><strong>65%</strong><small class="positive">+12%</small>
+            <div class="sparkline"><i style="width:65%"></i></div>
+          </article>
+          <article class="metric-card">
+            <span>First Dragon</span><strong>60%</strong><small class="positive">+8%</small>
+            <div class="sparkline"><i style="width:60%"></i></div>
+          </article>
+          <article class="metric-card">
+            <span>Dragon Control</span><strong>58%</strong><small class="positive">+9%</small>
+            <div class="sparkline"><i style="width:58%"></i></div>
+          </article>
+          <article class="metric-card">
+            <span>Baron Control</span><strong>55%</strong><small class="positive">+10%</small>
+            <div class="sparkline"><i style="width:55%"></i></div>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="panel strengths-panel">
+            <div class="panel-head"><h2>Team Diagnosis</h2><span>Last 20 games</span></div>
+            <div class="diagnosis-grid">
+              <div>
+                <h4 class="positive">STRENGTHS</h4>
+                <ul class="insight-list">
+                  <li><b>Early leads</b><span>65% win rate when ahead at 15.</span></li>
+                  <li><b>Objective sequencing</b><span>Strong second-dragon setups.</span></li>
+                  <li><b>Team fighting</b><span>Best results with clear engage.</span></li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="negative">WEAKNESSES</h4>
+                <ul class="insight-list">
+                  <li><b>Pre-objective deaths</b><span>Too many deaths before dragon.</span></li>
+                  <li><b>Playing from behind</b><span>Low comeback rate after 15.</span></li>
+                  <li><b>Late vision</b><span>Ward coverage falls after 20.</span></li>
+                </ul>
+              </div>
+            </div>
+            <div class="coach-callout">
+              <span class="callout-icon">!</span>
+              <p><b>Coaching priority:</b> Reset 75 seconds before major objectives. No side-lane greed, no blind river entries, no heroic solo archaeology.</p>
+            </div>
+          </article>
+
+          <article class="panel chart-panel">
+            <div class="panel-head"><h2>Gold Difference</h2><span>Average by minute</span></div>
+            <div class="chart">
+              <div class="axis-label y top">+6k</div>
+              <div class="axis-label y mid">0</div>
+              <div class="axis-label y bottom">-6k</div>
+              <svg viewBox="0 0 600 260" preserveAspectRatio="none" aria-label="Gold difference chart">
+                <defs>
+                  <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#39ff88" stop-opacity=".35"/>
+                    <stop offset="100%" stop-color="#39ff88" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 150 C80 145 100 120 160 125 S250 100 310 90 S430 55 600 35 L600 150 L0 150 Z" fill="url(#area)"/>
+                <path d="M0 150 C80 145 100 120 160 125 S250 100 310 90 S430 55 600 35" fill="none" stroke="#39ff88" stroke-width="5"/>
+                <line x1="0" y1="150" x2="600" y2="150" stroke="#33404c" stroke-width="2"/>
+              </svg>
+              <div class="chart-labels"><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span></div>
+            </div>
+            <div class="split-stats">
+              <div><strong>+1,245</strong><span>@ 10 min</span></div>
+              <div><strong>+2,384</strong><span>@ 15 min</span></div>
+              <div><strong>+1,765</strong><span>@ 20 min</span></div>
+            </div>
+          </article>
+
+          <article class="panel recent-panel">
+            <div class="panel-head"><h2>Recent Matches</h2><button class="text-button" data-view-jump="matches">View all</button></div>
+            <div id="recent-match-list"></div>
+          </article>
+        </div>
+
+        <article class="panel roster-panel">
+          <div class="panel-head"><h2>CAD Earth Roster</h2><span>Competitive lineup</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Player</th><th>Role</th><th>Rank</th><th>Win Rate</th><th>KDA</th><th>CS / Min</th><th>KP</th><th>Primary Goal</th></tr></thead>
+              <tbody id="roster-table"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section id="players" class="view">
+        <div class="section-intro"><h2>Player Development</h2><p>Role-specific metrics, champion pools, and coaching priorities.</p></div>
+        <div id="player-grid" class="player-grid"></div>
+      </section>
+
+      <section id="matches" class="view">
+        <div class="section-intro"><h2>Match Review</h2><p>Results, objectives, draft notes, and turning points.</p></div>
+        <div id="match-grid" class="match-grid"></div>
+      </section>
+
+      <section id="compositions" class="view">
+        <div class="section-intro"><h2>Composition Library</h2><p>Saved drafts rated for engage, peel, scaling, and damage balance.</p></div>
+        <div class="composition-grid" id="composition-grid"></div>
+      </section>
+
+      <section id="goals" class="view">
+        <div class="section-intro"><h2>Weekly Goals</h2><p>One clear target per player. Revolutionary restraint.</p></div>
+        <div id="goal-grid" class="goal-grid"></div>
+      </section>
+
+      <section id="notes" class="view">
+        <div class="section-intro"><h2>Coach Notes</h2><p>Prototype notes save in this browser only. Production notes will live in the team database.</p></div>
+        <article class="panel note-editor">
+          <label for="note-title">Title</label>
+          <input id="note-title" placeholder="Example: Scrim review — July 12" />
+          <label for="note-body">Notes</label>
+          <textarea id="note-body" rows="10" placeholder="Draft, objective setup, communication, player feedback..."></textarea>
+          <div class="note-actions">
+            <button class="primary-button" id="save-note">Save note locally</button>
+            <button class="secondary-button" id="clear-note">Clear</button>
+          </div>
+        </article>
+        <div id="saved-notes" class="saved-notes"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
