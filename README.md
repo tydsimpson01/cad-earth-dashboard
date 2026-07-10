@@ -1,56 +1,90 @@
-# CAD Earth Dashboard Prototype
+# CAD Earth Dashboard
 
-A static front-end prototype for the CAD Earth amateur League of Legends team.
+A production-ready Next.js foundation for the CAD Earth amateur League of Legends coaching dashboard. The current app preserves the original prototype's CAD / CTRL ALT DEL visual identity, mock roster, match review cards, composition library, weekly goals, and browser-local coach notes while moving the codebase to a typed, componentized architecture.
 
-## Included
+## Current scope
 
-- Team overview
-- Player development pages
-- Match review cards
-- Composition library
-- Weekly goals
-- Browser-local coach notes
-- Responsive mobile layout
-- CAD / CTRL ALT DEL-inspired visual identity
+- Next.js App Router application
+- TypeScript with strict mode enabled
+- Reusable React components for the dashboard shell, cards, navigation, and notes
+- Typed models for players, matches, compositions, goals, team metrics, and coach notes
+- Dedicated mock data module
+- Coach notes persisted through a storage abstraction backed by browser `localStorage`
+- Responsive CSS carried forward from the prototype
+- Vercel-compatible project structure
 
-## Important
+## Not included yet
 
-All statistics are placeholder demo data. Riot API integration, persistent database storage, authentication, and secure coach-note editing are not included in this prototype.
+Riot API integration, Supabase authentication, persistent database storage, scheduled match synchronization, and secure coach-note editing are intentionally not connected yet. Use `.env.example` as the placeholder contract for future credentials and never commit real secrets.
 
-## Run locally
+## Local setup
 
-Open `index.html` directly in a browser, or use a simple local server:
+1. Install Node.js 20 or newer.
+2. Install dependencies:
 
 ```bash
-python -m http.server 8000
+npm install
 ```
 
-Then visit:
+3. Copy the environment template and fill values only when integrations are implemented:
+
+```bash
+cp .env.example .env.local
+```
+
+4. Start the development server:
+
+```bash
+npm run dev
+```
+
+5. Open the app:
 
 ```text
-http://localhost:8000
+http://localhost:3000
 ```
 
-## Free hosting
+## Available scripts
 
-### Vercel
+```bash
+npm run dev
+```
 
-1. Create a free Vercel account.
-2. Create a new project.
-3. Upload this folder or connect a GitHub repository containing it.
-4. Deploy.
-5. Vercel will provide a free address similar to `cad-earth.vercel.app`.
+Starts the Next.js development server.
 
-### Netlify
+```bash
+npm run build
+```
 
-You can also drag the unzipped folder into Netlify Drop for a quick public prototype.
+Creates a production build suitable for Vercel.
 
-## Recommended production upgrade
+```bash
+npm run lint
+```
 
-- Next.js application
-- Supabase PostgreSQL database
-- Supabase authentication for coach/admin editing
-- Riot Games API integration
-- Scheduled match synchronization
-- Secure server-side API key handling
-- Data Dragon champion and item assets
+Runs ESLint with the Next.js core web vitals configuration.
+
+```bash
+npm run typecheck
+```
+
+Runs the TypeScript compiler in no-emit mode.
+
+## Project structure
+
+```text
+app/                  Next.js App Router entry points and global styles
+components/           Reusable React UI components
+data/                 Mock dashboard data
+types/                Shared TypeScript domain models
+lib/                  Client-side storage abstractions
+.env.example          Future Riot and Supabase environment placeholders
+```
+
+## Future production milestones
+
+1. Add Supabase auth and database persistence.
+2. Add Riot account lookup, match ingestion, and scheduled sync.
+3. Add Data Dragon champion and item assets.
+4. Build real coaching analytics from normalized match data.
+5. Add monitoring, deployment checks, and role-based admin editing.
