@@ -1,26 +1,35 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
-import { localCoachNotesStorage } from "@/lib/coach-notes-storage";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/browser";
 import type { CoachNote } from "@/types/dashboard";
 
+type CoachNoteRow = { id: string; title: string; body: string; created_at: string };
+
+function toCoachNote(row: CoachNoteRow): CoachNote {
+  return { id: row.id, title: row.title, body: row.body, date: new Date(row.created_at).toLocaleString() };
+}
+
 export function CoachNotes() {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
   const [notes, setNotes] = useState<CoachNote[]>([]);
+  const [status, setStatus] = useState("Loading coach notes...");
 
-  useEffect(() => setNotes(localCoachNotesStorage.list()), []);
-
-  function saveNote(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!title.trim() || !body.trim()) {
-      window.alert("Add both a title and note body.");
+  useEffect(() => {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+      setStatus("Supabase is not configured yet. Public dashboard data remains available; coach notes will load after setup.");
       return;
     }
-    setNotes(localCoachNotesStorage.save({ title: title.trim(), body: body.trim() }));
-    setTitle("");
-    setBody("");
-  }
 
-  return <><article className="panel note-editor"><form onSubmit={saveNote}><label htmlFor="note-title">Title</label><input id="note-title" value={title} onChange={(event: { target: { value: string } }) => setTitle(event.target.value)} placeholder="Example: Scrim review — July 12" /><label htmlFor="note-body">Notes</label><textarea id="note-body" rows={10} value={body} onChange={(event: { target: { value: string } }) => setBody(event.target.value)} placeholder="Draft, objective setup, communication, player feedback..." /><div className="note-actions"><button className="primary-button" type="submit">Save note locally</button><button className="secondary-button" type="button" onClick={() => { setTitle(""); setBody(""); }}>Clear</button></div></form></article><div id="saved-notes" className="saved-notes">{notes.length ? notes.map((note) => <article className="saved-note" key={note.id}><h4>{note.title}</h4><small>{note.date}</small><p>{note.body}</p></article>) : <div className="notice">No local notes saved yet.</div>}</div></>;
+    const supabase = createClient();
+    supabase.from("coach_notes").select("id,title,body,created_at").order("created_at", { ascending: false }).then(({ data, error }) => {
+      if (error) {
+        setStatus("Coach notes could not be loaded.");
+        return;
+      }
+      setNotes((data ?? []).map(toCoachNote));
+      setStatus((data ?? []).length ? "" : "No coach notes saved yet.");
+    });
+  }, []);
+
+  return <><div className="notice"><strong>Admin protected:</strong> notes are stored in Supabase. Coaches can create, edit, or delete notes from the admin area.</div><div id="saved-notes" className="saved-notes">{notes.length ? notes.map((note) => <article className="saved-note" key={note.id}><h4>{note.title}</h4><small>{note.date}</small><p>{note.body}</p></article>) : <div className="notice">{status}</div>}</div></>;
 }
