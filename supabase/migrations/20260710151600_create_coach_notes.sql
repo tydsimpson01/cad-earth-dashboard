@@ -13,3 +13,6 @@ create policy "Public coach notes are readable" on public.coach_notes for select
 create policy "Admins can insert coach notes" on public.coach_notes for insert to authenticated with check (public.is_admin());
 create policy "Admins can update coach notes" on public.coach_notes for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admins can delete coach notes" on public.coach_notes for delete to authenticated using (public.is_admin());
+
+grant select on table public.coach_notes to anon, authenticated;
+grant insert, update, delete on table public.coach_notes to authenticated;

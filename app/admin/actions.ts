@@ -24,18 +24,34 @@ export async function saveCoachNote(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   const body = String(formData.get("body") ?? "").trim();
-  if (!title || !body) return;
-  if (id) await supabase.from("coach_notes").update({ title, body }).eq("id", id);
-  else await supabase.from("coach_notes").insert({ title, body, created_by: user.id });
+  if (!title || !body) redirect("/admin?error=Title%20and%20body%20are%20required");
+
+  const result = id
+    ? await supabase.from("coach_notes").update({ title, body }).eq("id", id)
+    : await supabase.from("coach_notes").insert({ title, body, created_by: user.id });
+
+  if (result.error) {
+    console.error("Coach note save failed:", result.error);
+    redirect(`/admin?error=${encodeURIComponent(result.error.message)}`);
+  }
+
   revalidatePath("/");
   revalidatePath("/admin");
+  redirect("/admin?success=Coach%20note%20saved");
 }
 
 export async function deleteCoachNote(formData: FormData) {
   const { supabase } = await requireAdmin();
-  await supabase.from("coach_notes").delete().eq("id", String(formData.get("id") ?? ""));
+  const result = await supabase.from("coach_notes").delete().eq("id", String(formData.get("id") ?? ""));
+
+  if (result.error) {
+    console.error("Coach note delete failed:", result.error);
+    redirect(`/admin?error=${encodeURIComponent(result.error.message)}`);
+  }
+
   revalidatePath("/");
   revalidatePath("/admin");
+  redirect("/admin?success=Coach%20note%20deleted");
 }
 
 export async function saveGoal(formData: FormData) {

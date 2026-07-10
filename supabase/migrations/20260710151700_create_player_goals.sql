@@ -15,3 +15,6 @@ create policy "Public player goals are readable" on public.player_goals for sele
 create policy "Admins can insert player goals" on public.player_goals for insert to authenticated with check (public.is_admin());
 create policy "Admins can update player goals" on public.player_goals for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admins can delete player goals" on public.player_goals for delete to authenticated using (public.is_admin());
+
+grant select on table public.player_goals to anon, authenticated;
+grant insert, update, delete on table public.player_goals to authenticated;

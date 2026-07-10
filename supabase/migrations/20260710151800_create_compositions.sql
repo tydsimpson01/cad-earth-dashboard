@@ -15,3 +15,6 @@ create policy "Public compositions are readable" on public.compositions for sele
 create policy "Admins can insert compositions" on public.compositions for insert to authenticated with check (public.is_admin());
 create policy "Admins can update compositions" on public.compositions for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admins can delete compositions" on public.compositions for delete to authenticated using (public.is_admin());
+
+grant select on table public.compositions to anon, authenticated;
+grant insert, update, delete on table public.compositions to authenticated;
