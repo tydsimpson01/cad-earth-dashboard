@@ -4,6 +4,7 @@ import { RIOT_ROSTER } from "@/lib/riot/roster";
 import { createClient } from "@/lib/supabase/server";
 import type {
   DashboardData,
+  DashboardMatchRange,
   MatchReview,
   Player,
   Role,
@@ -257,35 +258,27 @@ function buildMetrics(
   ];
 }
 
-export async function getLiveDashboardData(): Promise<DashboardData> {
+export async function getLiveDashboardData(
+  matchRange: DashboardMatchRange = 20,
+): Promise<DashboardData> {
   try {
     const supabase = await createClient();
 
-    const [matchesResult, playerMatchesResult] = await Promise.all([
-      supabase
-        .from("riot_matches")
-        .select("*")
-        .order("game_start_time", { ascending: false })
-        .limit(100),
-      supabase
-        .from("riot_player_matches")
-        .select("*")
-        .limit(500),
-    ]);
+    const matchesResult = await supabase
+      .from("riot_matches")
+      .select("*")
+      .order("game_start_time", { ascending: false })
+      .limit(matchRange);
 
     if (matchesResult.error) {
       throw new Error(matchesResult.error.message);
     }
 
-    if (playerMatchesResult.error) {
-      throw new Error(playerMatchesResult.error.message);
-    }
-
     const matchRows = matchesResult.data ?? [];
-    const playerRows = playerMatchesResult.data ?? [];
 
-    if (!matchRows.length || !playerRows.length) {
+    if (!matchRows.length) {
       return {
+        matchRange,
         players: buildPlayers([]),
         matches: [],
         teamMetrics: buildMetrics([], []),
@@ -295,18 +288,45 @@ export async function getLiveDashboardData(): Promise<DashboardData> {
       };
     }
 
+    const matchIds = matchRows.map((match) => match.match_id);
+    const playerMatchesResult = await supabase
+      .from("riot_player_matches")
+      .select("*")
+      .in("match_id", matchIds)
+      .limit(500);
+
+    if (playerMatchesResult.error) {
+      throw new Error(playerMatchesResult.error.message);
+    }
+
+    const playerRows = playerMatchesResult.data ?? [];
+
+    if (!playerRows.length) {
+      return {
+        matchRange,
+        players: buildPlayers([]),
+        matches: [],
+        teamMetrics: buildMetrics([], matchRows),
+        dataStatus: "empty",
+        dataMessage:
+          "Imported matches were found, but no roster-player records were available for the selected range.",
+      };
+    }
+
     return {
+      matchRange,
       players: buildPlayers(playerRows),
       matches: buildMatches(playerRows, matchRows),
       teamMetrics: buildMetrics(playerRows, matchRows),
       dataStatus: "live",
       dataMessage:
-        "Player cards, roster statistics, team metrics, and recent games are calculated from imported Match-v5 records. Coaching diagnosis and the gold chart remain manual.",
+        `Showing statistics from the latest ${matchRows.length} imported matches. Player cards, roster metrics, and recent-game details are calculated from Riot Match-v5 records.`,
     };
   } catch (error) {
     console.error("Live Riot dashboard load failed:", error);
 
     return {
+      matchRange,
       players: buildPlayers([]),
       matches: [],
       teamMetrics: buildMetrics([], []),

@@ -56,10 +56,13 @@ export interface CoachNote {
   body: string;
   date: string;
 }
+export type DashboardMatchRange = 10 | 20;
+
 export type DashboardDataStatus = "live" | "empty" | "error";
 
 export interface DashboardData {
-  players: Player[];
+  matchRange: DashboardMatchRange;
+players: Player[];
   matches: MatchReview[];
   teamMetrics: TeamMetric[];
   dataStatus: DashboardDataStatus;
