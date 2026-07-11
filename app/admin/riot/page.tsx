@@ -24,10 +24,10 @@ export default async function RiotStatusPage() {
       <header className="admin-header">
         <div>
           <p className="eyebrow">RIOT API</p>
-          <h1>Roster connection status</h1>
+          <h1>Riot match import</h1>
           <p className="muted">
-            Read-only server-side checks for Account-v1 and a small Match-v5
-            sample. No Supabase data is overwritten.
+            Pull the roster&apos;s latest Match-v5 games and save new matches
+            and player statistics to Supabase.
           </p>
         </div>
 

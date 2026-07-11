@@ -15,10 +15,21 @@ export type RiotMatchParticipant = {
   puuid: string;
   riotIdGameName?: string;
   riotIdTagline?: string;
+  participantId: number;
+  teamId: number;
+  championId: number;
   championName: string;
+  teamPosition: string;
   kills: number;
   deaths: number;
   assists: number;
+  totalMinionsKilled: number;
+  neutralMinionsKilled: number;
+  goldEarned: number;
+  visionScore: number;
+  totalDamageDealtToChampions: number;
+  damageDealtToObjectives: number;
+  timePlayed: number;
   win: boolean;
 };
 
@@ -29,8 +40,12 @@ export type RiotMatchSummary = {
   };
   info: {
     gameCreation: number;
+    gameStartTimestamp?: number;
+    gameEndTimestamp?: number;
     gameDuration: number;
     gameMode: string;
+    gameType?: string;
+    gameVersion?: string;
     queueId: number;
     participants: RiotMatchParticipant[];
   };
@@ -65,3 +80,13 @@ export type RiotPlayerStatus =
       ok: false;
       error: RiotMappedError;
     };
+
+export type RiotImportResult = {
+  playersResolved: number;
+  playersFailed: number;
+  matchesFound: number;
+  imported: number;
+  skipped: number;
+  failed: number;
+  errors: string[];
+};

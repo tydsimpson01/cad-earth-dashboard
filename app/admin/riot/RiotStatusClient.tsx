@@ -1,8 +1,14 @@
 "use client";
 
 import { useActionState } from "react";
-import { testRiotConnection } from "@/app/admin/actions";
-import type { RiotPlayerStatus } from "@/lib/riot/types";
+import {
+  importRiotMatches,
+  testRiotConnection,
+} from "@/app/admin/actions";
+import type {
+  RiotImportResult,
+  RiotPlayerStatus,
+} from "@/lib/riot/types";
 
 type RiotStatusClientProps = {
   routingRegion: string;
@@ -15,10 +21,15 @@ export default function RiotStatusClient({
   matchCount,
   keyConfigured,
 }: RiotStatusClientProps) {
-  const [statuses, formAction, pending] = useActionState<
+  const [statuses, testAction, testing] = useActionState<
     RiotPlayerStatus[] | null,
     FormData
   >(testRiotConnection, null);
+
+  const [importResult, importAction, importing] = useActionState<
+    RiotImportResult | null,
+    FormData
+  >(importRiotMatches, null);
 
   return (
     <>
@@ -37,23 +48,61 @@ export default function RiotStatusClient({
             </span>
           </div>
 
-          <form action={formAction}>
-            <button
-              className="primary-button"
-              type="submit"
-              disabled={pending}
-            >
-              {pending ? "Testing..." : "Test Riot connection"}
-            </button>
-          </form>
+          <div className="top-actions">
+            <form action={testAction}>
+              <button
+                className="secondary-button"
+                type="submit"
+                disabled={testing || importing || !keyConfigured}
+              >
+                {testing ? "Testing..." : "Test connection"}
+              </button>
+            </form>
+
+            <form action={importAction}>
+              <button
+                className="primary-button"
+                type="submit"
+                disabled={testing || importing || !keyConfigured}
+              >
+                {importing ? "Importing..." : "Import latest matches"}
+              </button>
+            </form>
+          </div>
         </div>
       </section>
+
+      {importResult ? (
+        <section className="panel">
+          <div className="notice success-notice">
+            Import complete: {importResult.imported} imported,{" "}
+            {importResult.skipped} already saved, {importResult.failed} failed.
+          </div>
+          <p className="muted">
+            {importResult.playersResolved} players resolved,{" "}
+            {importResult.playersFailed} player lookups failed,{" "}
+            {importResult.matchesFound} unique recent matches found.
+          </p>
+
+          {importResult.errors.length ? (
+            <div className="status-error">
+              <strong>Import details</strong>
+              <ul>
+                {importResult.errors.map((message) => (
+                  <li key={message}>{message}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {statuses === null ? (
         <section className="panel riot-empty-state">
           <p className="muted">
-            No Riot requests have been made yet. Click the button once to run
-            the roster check.
+            No connection test has been run. Use Import latest matches to save
+            the roster&apos;s recent games, or Test connection for a read-only
+            check.
           </p>
         </section>
       ) : (

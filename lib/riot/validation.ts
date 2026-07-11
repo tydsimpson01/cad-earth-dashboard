@@ -8,6 +8,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function numberOrZero(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function optionalNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
+function optionalString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
 export function validateRiotAccount(value: unknown): RiotAccount {
   if (
     !isRecord(value) ||
@@ -55,18 +69,25 @@ function validateParticipant(value: unknown): RiotMatchParticipant {
 
   return {
     puuid: value.puuid,
-    riotIdGameName:
-      typeof value.riotIdGameName === "string"
-        ? value.riotIdGameName
-        : undefined,
-    riotIdTagline:
-      typeof value.riotIdTagline === "string"
-        ? value.riotIdTagline
-        : undefined,
+    riotIdGameName: optionalString(value.riotIdGameName),
+    riotIdTagline: optionalString(value.riotIdTagline),
+    participantId: numberOrZero(value.participantId),
+    teamId: numberOrZero(value.teamId),
+    championId: numberOrZero(value.championId),
     championName: value.championName,
+    teamPosition: optionalString(value.teamPosition) ?? "",
     kills: value.kills,
     deaths: value.deaths,
     assists: value.assists,
+    totalMinionsKilled: numberOrZero(value.totalMinionsKilled),
+    neutralMinionsKilled: numberOrZero(value.neutralMinionsKilled),
+    goldEarned: numberOrZero(value.goldEarned),
+    visionScore: numberOrZero(value.visionScore),
+    totalDamageDealtToChampions: numberOrZero(
+      value.totalDamageDealtToChampions,
+    ),
+    damageDealtToObjectives: numberOrZero(value.damageDealtToObjectives),
+    timePlayed: numberOrZero(value.timePlayed),
     win: value.win,
   };
 }
@@ -112,8 +133,12 @@ export function validateRiotMatch(value: unknown): RiotMatchSummary {
     },
     info: {
       gameCreation: info.gameCreation,
+      gameStartTimestamp: optionalNumber(info.gameStartTimestamp),
+      gameEndTimestamp: optionalNumber(info.gameEndTimestamp),
       gameDuration: info.gameDuration,
       gameMode: info.gameMode,
+      gameType: optionalString(info.gameType),
+      gameVersion: optionalString(info.gameVersion),
       queueId: info.queueId,
       participants: info.participants.map(validateParticipant),
     },
