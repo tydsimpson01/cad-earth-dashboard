@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getRosterStatus } from "@/lib/riot/client";
-import type { RiotPlayerStatus } from "@/lib/riot/types";
+import { importRecentRosterMatches } from "@/lib/riot/import";
+import type {
+  RiotImportResult,
+  RiotPlayerStatus,
+} from "@/lib/riot/types";
 
 async function requireAdmin() {
   const supabase = await createClient();
@@ -88,7 +92,21 @@ export async function deleteComposition(formData: FormData) {
 
 export async function testRiotConnection(
   _previousState: RiotPlayerStatus[] | null,
+  _formData: FormData,
 ): Promise<RiotPlayerStatus[]> {
   await requireAdmin();
   return getRosterStatus();
+}
+
+export async function importRiotMatches(
+  _previousState: RiotImportResult | null,
+  _formData: FormData,
+): Promise<RiotImportResult> {
+  const { supabase } = await requireAdmin();
+  const result = await importRecentRosterMatches(supabase);
+
+  revalidatePath("/");
+  revalidatePath("/admin/riot");
+
+  return result;
 }
