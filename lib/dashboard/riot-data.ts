@@ -16,7 +16,7 @@ type PlayerMatchRow =
   Database["public"]["Tables"]["riot_player_matches"]["Row"];
 
 const goalsByRiotId: Record<string, string> = {
-  "chico#3456": "CS â‰¥ 8/min",
+  "chico#3456": "CS >= 8/min",
   "Aigis#SEES": "Earlier objective setup",
   "Nemoupi#2427": "Roam on first reset",
   "redakted#GONE": "Fewer late deaths",
@@ -167,8 +167,8 @@ function buildMatches(
             0,
         ),
         when: relativeTime(match?.game_start_time ?? null),
-        composition: `${row.riot_id} â€¢ ${row.champion_name ?? "Unknown"}`,
-        notes: `${csPerMinute} CS/min â€¢ ${row.vision_score} vision â€¢ ${row.total_damage_dealt_to_champions.toLocaleString()} champion damage`,
+        composition: `${row.riot_id} | ${row.champion_name ?? "Unknown"}`,
+        notes: `${csPerMinute} CS/min | ${row.vision_score} vision | ${row.total_damage_dealt_to_champions.toLocaleString()} champion damage`,
         tags: [
           queueLabel(match?.queue_id ?? null),
           row.roster_role,
@@ -213,21 +213,21 @@ function buildMetrics(
 
   return [
     {
-      label: "Win Rate",
+      label: "Roster Sample Win Rate",
       value: `${winRate}%`,
-      delta: `${wins}W â€“ ${games - wins}L`,
+      delta: `${wins}W - ${games - wins}L`,
       sentiment: winRate >= 50 ? "positive" : "negative",
       progress: winRate,
     },
     {
-      label: "Average KDA",
+      label: "Roster Avg KDA",
       value: averageKda.toFixed(2),
       delta: `${kills} / ${deaths} / ${assists}`,
       sentiment: averageKda >= 2.5 ? "positive" : "neutral",
       progress: clamp(averageKda * 20),
     },
     {
-      label: "Average CS / Min",
+      label: "Roster Avg CS / Min",
       value: averageCsPerMinute.toFixed(1),
       delta: `${games} player games`,
       sentiment: averageCsPerMinute >= 6 ? "positive" : "neutral",
@@ -291,7 +291,7 @@ export async function getLiveDashboardData(): Promise<DashboardData> {
         teamMetrics: buildMetrics([], []),
         dataStatus: "empty",
         dataMessage:
-          "No imported games are available yet. Use Admin â†’ Riot status â†’ Import latest matches.",
+          "No imported games are available yet. Use Admin > Riot status > Import latest matches.",
       };
     }
 
