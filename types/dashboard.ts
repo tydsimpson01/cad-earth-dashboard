@@ -56,3 +56,12 @@ export interface CoachNote {
   body: string;
   date: string;
 }
+export type DashboardDataStatus = "live" | "empty" | "error";
+
+export interface DashboardData {
+  players: Player[];
+  matches: MatchReview[];
+  teamMetrics: TeamMetric[];
+  dataStatus: DashboardDataStatus;
+  dataMessage: string;
+}
