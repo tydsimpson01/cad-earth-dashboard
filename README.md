@@ -15,7 +15,7 @@ A production-ready Next.js foundation for the CAD Earth amateur League of Legend
 
 ## Not included yet
 
-Riot API integration, match ingestion, scheduled synchronization, and Data Dragon assets are intentionally not connected yet. Never commit real secrets.
+Scheduled synchronization, database-backed Riot match ingestion, and Data Dragon assets are intentionally not connected yet. Never commit real secrets.
 
 ## Local setup
 
@@ -124,3 +124,35 @@ supabase/migrations/  PostgreSQL schema and RLS policy migrations
 types/                Shared TypeScript domain and Supabase database types
 .env.example          Public environment variable template
 ```
+
+
+## Riot API read-only setup
+
+Milestone 3 adds server-side, read-only Riot Account-v1 and Match-v5 connectivity for the CAD Earth roster. Riot requests are made only from Server Components and server actions. `RIOT_API_KEY` must stay server-only and must never be prefixed with `NEXT_PUBLIC_`.
+
+### Environment variables
+
+```bash
+RIOT_API_KEY=RGAPI-your-development-or-production-key
+RIOT_ROUTING_REGION=americas
+RIOT_RECENT_MATCH_COUNT=3
+```
+
+- `RIOT_API_KEY` is read from the server environment for Account-v1 and Match-v5 calls.
+- `RIOT_ROUTING_REGION` defaults to `americas`, which is required for the current North American roster.
+- `RIOT_RECENT_MATCH_COUNT` is capped at five per player so local testing does not burn through a development key.
+
+### Development-key expiration and rate limits
+
+Riot development keys expire regularly and can return 401 or 403 when missing, expired, invalid, or disallowed. Generate a fresh key from the Riot developer portal and restart the Next.js server after changing `.env.local`.
+
+The admin status page intentionally imports only a small recent-match sample per player. If Riot returns 429, wait for the `Retry-After` value shown in the UI before testing again.
+
+### Testing the connection
+
+1. Sign in as a Supabase admin.
+2. Open `/admin/riot`.
+3. Click **Test Riot connection**.
+4. Confirm each roster Riot ID either resolves to a PUUID and recent Match-v5 sample or shows a clear error.
+
+The Riot status page does not write to Supabase and does not overwrite existing coach notes, goals, compositions, profiles, RLS policies, or public dashboard data.
